@@ -3,6 +3,7 @@ package tree;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
@@ -222,45 +223,65 @@ class SplayTree {
     private void zigzig(Node u) {
         Node a = u.getParent();
         Node b = a.getParent();
+        Consumer<Node> childSetter = childSetter(b);
         Node treeB = u.getRightChild();
         Node treeC = a.getRightChild();
         u.setRightChild(a);
         a.setLeftChild(treeB);
         a.setRightChild(b);
         b.setLeftChild(treeC);
+        childSetter.accept(u);
     }
 
     private void zigzag(Node u) {
         Node b = u.getParent();
         Node a = b.getParent();
+        Consumer<Node> childSetter = childSetter(a);
         Node treeB = u.getLeftChild();
         Node treeC = u.getRightChild();
         a.setRightChild(treeB);
         b.setLeftChild(treeC);
         u.setLeftChild(a);
         u.setRightChild(b);
+        childSetter.accept(u);
     }
 
     private void zagzig(Node u) {
         Node b = u.getParent();
         Node a = b.getParent();
+        Consumer<Node> childSetter = childSetter(a);
         Node treeB = u.getLeftChild();
         Node treeC = u.getRightChild();
         b.setRightChild(treeB);
         a.setLeftChild(treeC);
         u.setLeftChild(b);
         u.setRightChild(a);
+        childSetter.accept(u);
     }
 
     private void zagzag(Node u) {
         Node b = u.getParent();
         Node a = b.getParent();
+        Consumer<Node> childSetter = childSetter(a);
         Node treeB = b.getLeftChild();
         Node treeC = u.getLeftChild();
         a.setRightChild(treeB);
         b.setRightChild(treeC);
         b.setLeftChild(a);
         u.setLeftChild(b);
+        childSetter.accept(u);
+    }
+
+    private Consumer<Node> childSetter(Node node) {
+        Node parent = node.getParent();
+        if (parent == null) {
+            return Node::makeRoot;
+        }
+        if (parent.getLeftChild() == node) {
+            return parent::setLeftChild;
+        } else {
+            return parent::setRightChild;
+        }
     }
 }
 
