@@ -1,6 +1,9 @@
 package tree;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -33,6 +36,13 @@ public class SplayTreeSum {
 class SplayTree {
 
     private Node root;
+
+    public SplayTree() {
+    }
+
+    public SplayTree(Node root) {
+        this.root = root;
+    }
 
     private class Node {
         private long value;
@@ -129,9 +139,27 @@ class SplayTree {
         }
         Node node = searchForParentOrNode(value);
         splay(node);
-        if (node.getValue() == value) {
-            splitRoot(node);
+        if (node.getValue() != value) {
+            return;
         }
+        Node leftChild = node.getLeftChild();
+        Node rightChild = node.getRightChild();
+        if (leftChild == null && rightChild == null) {
+            root = null;
+            return;
+        }
+        if (leftChild == null) {
+            rightChild.makeRoot();
+            return;
+        }
+        if (rightChild == null) {
+            leftChild.makeRoot();
+            return;
+        }
+        leftChild.makeRoot();
+        Node max = max(leftChild);
+        splay(max);
+        max.setRightChild(rightChild);
     }
 
     public boolean search(long value) {
@@ -140,11 +168,11 @@ class SplayTree {
         }
         Node node = searchForParentOrNode(value);
         splay(node);
-        if (node.getValue() == value) {
-            System.out.println("Found");
-        } else {
-            System.out.println("Not Found");
-        }
+//        if (node.getValue() == value) {
+//            System.out.println("Found");
+//        } else {
+//            System.out.println("Not Found");
+//        }
         return node.getValue() == value;
     }
 
@@ -173,9 +201,22 @@ class SplayTree {
 
     }
 
-    private void splitRoot(Node node) {
+    private void merge(Node leftTree, Node rightTree) {
 
     }
+
+    private Node max(Node tree) {
+        Node max = tree;
+        while (max.getRightChild() != null) {
+            max = max.getRightChild();
+        }
+        return max;
+    }
+
+//    private Node[] split(Node node) {
+//        splay(node);
+//        return new Node[]{node.getLeftChild(), node.getRightChild()};
+//    }
 
     private void splay(Node u) {
         while (u != root) {

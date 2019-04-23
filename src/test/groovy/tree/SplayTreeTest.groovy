@@ -47,4 +47,79 @@ class SplayTreeTest extends Specification {
         !tree.search(4)     //not found, but splay has to be called for 5
         tree.root.value == 5
     }
+
+    def "single element tree - remove"() {
+        when:
+        tree.insert(15)
+
+        then:
+        tree.search(15)
+
+        when:
+        tree.remove(15)
+
+        then:
+        !tree.search(15)
+    }
+
+
+    def "two element tree - remove"() {
+        when:
+        tree.insert(15)
+        tree.insert(20)
+        tree.remove(15)
+
+        then:
+        !tree.search(15)
+        tree.search(20)
+    }
+
+    def "a few elements insert remove search"() {
+        when:
+        tree.insert(1)
+        tree.insert(2)
+        tree.insert(10)
+        tree.insert(10)
+        tree.insert(3)
+        tree.remove(10)
+
+        then:
+        tree.search(2)
+        tree.search(3)
+        !tree.search(10)
+        tree.search(1)
+    }
+
+    def "a lot of elements check"() {
+        given:
+        def integers = new ArrayList<Long>()
+        int halfSize  = 5_000_000
+        int size = halfSize * 2
+
+        when:
+        for (int i = 0; i < size; i++) {
+            integers.add(i)
+            tree.insert(integers.get(i))
+        }
+
+        then:
+        integers.every {
+            tree.search(it)
+        }
+
+        when:
+        def firstHalf = integers.subList(0, halfSize)
+        for (int i = 0; i < halfSize; i++) {
+            tree.remove(firstHalf.get(i))
+        }
+        def secondHalf = integers.subList(halfSize + 1, size)
+
+        then:
+        firstHalf.every {
+            !tree.search(it)
+        }
+        secondHalf.every {
+            tree.search(it)
+        }
+    }
 }
