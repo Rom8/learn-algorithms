@@ -189,14 +189,18 @@ class SplayTree {
         } else {
             Node parent = u.getParent();
             Node grandParent = parent.getParent();
-            if (parent.getLeftChild() == u && grandParent.getLeftChild() == parent) {
-                zigzig(u);
-            } else if (parent.getLeftChild() == u && grandParent.getRightChild() == parent) {
-                zigzag(u);
-            } else if (parent.getRightChild() == u && grandParent.getLeftChild() == parent) {
-                zagzig(u);
-            } else if (parent.getRightChild() == u && grandParent.getRightChild() == parent) {
-                zagzag(u);
+            if (parent.getLeftChild() == u) {
+                if (grandParent.getLeftChild() == parent) {
+                    zigzig(u);
+                } else {
+                    zigzag(u);
+                }
+            } else {
+                if (grandParent.getLeftChild() == parent) {
+                    zagzig(u);
+                } else {
+                    zagzag(u);
+                }
             }
         }
     }
