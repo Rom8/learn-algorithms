@@ -165,8 +165,33 @@ class SplayTree {
 
     }
 
-    private void splay(Node node) {
+    private void splay(Node u) {
+        if (u.getParent() == root) {
+            if (root.getLeftChild() == u) {
+                zig(u);
+            } else {
+                zag(u);
+            }
+        }
 
+    }
+
+    private void zig(Node u) {
+        Node a = root;
+        a.setLeftChild(u.getRightChild());
+        a.setParent(u);
+        u.setRightChild(a);
+        u.setParent(null);
+        root = u;
+    }
+
+    private void zag(Node u) {
+        Node a = root;
+        a.setRightChild(u.getLeftChild());
+        a.setParent(u);
+        u.setLeftChild(a);
+        u.setParent(null);
+        root = u;
     }
 
     private void zigzig() {
