@@ -1,12 +1,10 @@
 package tree;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static java.lang.Integer.parseInt;
@@ -23,8 +21,8 @@ public class SplayTreeSum {
         commands.put("?", new Search(splayTree));
         commands.put("s", new Sum(splayTree));
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("splayTree1.txt")));
-//        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+//        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("splayTree1.txt")));
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = parseInt(br.readLine());
         for (int i = 0; i < n; i++) {
             String[] commandArgs = br.readLine().split(" ");
@@ -273,14 +271,6 @@ class SplayTree {
         return result;
     }
 
-//    private long sumLocal() {
-//
-//    }
-
-    private void merge(Node leftTree, Node rightTree) {
-
-    }
-
     private Node max(Node tree) {
         Node max = tree;
         while (max.getRightChild() != null) {
@@ -296,11 +286,6 @@ class SplayTree {
         }
         return min;
     }
-
-//    private Node[] split(Node node) {
-//        splay(node);
-//        return new Node[]{node.getLeftChild(), node.getRightChild()};
-//    }
 
     private void splay(Node u) {
         while (u != root) {
@@ -480,6 +465,8 @@ class Remove extends CommandBase {
 
 class Search extends CommandBase {
 
+    private static final String FOUND = "Found";
+    private static final String NOT_FOUND = "Not found";
 
     Search(SplayTree splayTree) {
         super(splayTree);
@@ -489,9 +476,9 @@ class Search extends CommandBase {
     protected void execute(long number) {
         boolean found = splayTree.search(number);
         if (found) {
-            System.out.println("Found");
+            System.out.println(FOUND);
         } else {
-            System.out.println("Not Found");
+            System.out.println(NOT_FOUND);
         }
     }
 
