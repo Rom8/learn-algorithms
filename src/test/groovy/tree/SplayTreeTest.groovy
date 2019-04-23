@@ -30,12 +30,21 @@ class SplayTreeTest extends Specification {
         tree.insert(10)
         tree.insert(11)
         tree.insert(5)
+        tree.insert(19)
+        tree.insert(25)
 
         then:
+        tree.search(25)
         tree.search(15)
         tree.search(20)
         tree.search(10)
         tree.search(11)
+        tree.search(19)
         tree.search(5)
+
+        !tree.search(100)   //not found, but splay has to be called for 25
+        tree.root.value == 25
+        !tree.search(4)     //not found, but splay has to be called for 5
+        tree.root.value == 5
     }
 }

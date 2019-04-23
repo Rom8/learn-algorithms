@@ -178,29 +178,28 @@ class SplayTree {
     }
 
     private void splay(Node u) {
-        if (u == root) {
-            return;
-        }
-        if (u.getParent() == root) {
-            if (root.getLeftChild() == u) {
-                zig(u);
-            } else {
-                zag(u);
-            }
-        } else {
-            Node parent = u.getParent();
-            Node grandParent = parent.getParent();
-            if (parent.getLeftChild() == u) {
-                if (grandParent.getLeftChild() == parent) {
-                    zigzig(u);
+        while (u != root) {
+            if (u.getParent() == root) {
+                if (root.getLeftChild() == u) {
+                    zig(u);
                 } else {
-                    zigzag(u);
+                    zag(u);
                 }
             } else {
-                if (grandParent.getLeftChild() == parent) {
-                    zagzig(u);
+                Node parent = u.getParent();
+                Node grandParent = parent.getParent();
+                if (parent.getLeftChild() == u) {
+                    if (grandParent.getLeftChild() == parent) {
+                        zigzig(u);
+                    } else {
+                        zigzag(u);
+                    }
                 } else {
-                    zagzag(u);
+                    if (grandParent.getLeftChild() == parent) {
+                        zagzig(u);
+                    } else {
+                        zagzag(u);
+                    }
                 }
             }
         }
