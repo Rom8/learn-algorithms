@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static java.lang.Integer.parseInt;
@@ -47,13 +48,15 @@ class SplayTree {
     private class Node {
         private long value;
 
+        private long sum;
+
         private Node parent;
         private Node leftChild;
         private Node rightChild;
 
-        public Node(long value, Node parent) {
+        public Node(long value) {
             this.value = value;
-            this.parent = parent;
+            this.sum = value;
         }
 
         public long getValue() {
@@ -86,6 +89,7 @@ class SplayTree {
             if (leftChild != null) {
                 leftChild.setParent(this);
             }
+            updateSum();
         }
 
         public Node getRightChild() {
@@ -97,12 +101,27 @@ class SplayTree {
             if (rightChild != null) {
                 rightChild.setParent(this);
             }
+            updateSum();
+        }
+
+        public long getSum() {
+            return sum;
+        }
+
+        private void updateSum() {
+            sum = value;
+            if (leftChild != null) {
+                sum += leftChild.getSum();
+            }
+            if (rightChild != null) {
+                sum += rightChild.getSum();
+            }
         }
     }
 
     public void insert(long value) {
         if (root == null) {
-            root = new Node(value, null);
+            root = new Node(value);
             return;
         }
         Node insertedNode = insert(value, root);
@@ -115,7 +134,7 @@ class SplayTree {
 
             if (value < node.getValue()) {
                 if (node.getLeftChild() == null) {
-                    node.setLeftChild(new Node(value, node));
+                    node.setLeftChild(new Node(value));
                     return node.getLeftChild();
                 } else {
                     node = node.getLeftChild();
@@ -123,7 +142,7 @@ class SplayTree {
             }
             if (value > node.getValue()) {
                 if (node.getRightChild() == null) {
-                    node.setRightChild(new Node(value, node));
+                    node.setRightChild(new Node(value));
                     return node.getRightChild();
                 } else {
                     node = node.getRightChild();
@@ -168,11 +187,6 @@ class SplayTree {
         }
         Node node = searchForParentOrNode(value);
         splay(node);
-//        if (node.getValue() == value) {
-//            System.out.println("Found");
-//        } else {
-//            System.out.println("Not Found");
-//        }
         return node.getValue() == value;
     }
 
@@ -398,7 +412,12 @@ class Search extends CommandBase {
 
     @Override
     protected void execute(long number) {
-        splayTree.search(number);
+        boolean found = splayTree.search(number);
+        if (found) {
+            System.out.println("Found");
+        } else {
+            System.out.println("Not Found");
+        }
     }
 
 }
