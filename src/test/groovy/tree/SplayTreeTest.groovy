@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom
 class SplayTreeTest extends Specification {
 
     ThreadLocalRandom random = ThreadLocalRandom.current()
-    def tree = new SplayTree()
+    def tree = new SplayTree("Main tree")
 
     def "empty tree"() {
         expect:
@@ -123,7 +123,7 @@ class SplayTreeTest extends Specification {
         }
     }
 
-    def "check sum"() {
+    def "check sum - simple"() {
         when:
         tree.insert(1)
         tree.insert(2)
@@ -133,5 +133,34 @@ class SplayTreeTest extends Specification {
 
         then:
         tree.root.getSum() == 15
+    }
+
+    def "sum in a segment"() {
+        when:
+        tree.insert(1)
+        tree.insert(3)
+        tree.insert(2)
+        tree.insert(11)
+        tree.insert(10)
+        tree.insert(12)
+
+        then:
+        tree.sum(-5, 0) == 0
+        tree.sum(0, 0) == 0
+        tree.sum(0, 1) == 1
+        tree.sum(1, 1) == 1
+        tree.sum(0, 3) == 6
+        tree.sum(0, 9) == 6
+        tree.sum(1, 10) == 16
+        tree.sum(1, 11) == 27
+        tree.sum(3, 15) == 36
+        tree.sum(100, 200) == 0
+
+        tree.search(1)
+        tree.search(2)
+        tree.search(3)
+        tree.search(10)
+        tree.search(11)
+        tree.search(12)
     }
 }

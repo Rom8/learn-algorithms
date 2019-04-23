@@ -15,7 +15,7 @@ import static java.lang.Long.parseLong;
 public class SplayTreeSum {
 
     public static void main(String[] args) throws IOException {
-        SplayTree splayTree = new SplayTree();
+        SplayTree splayTree = new SplayTree("Main tree");
 
         Map<String, Command> commands = new HashMap<>();
         commands.put("+", new Insert(splayTree));
@@ -36,13 +36,17 @@ public class SplayTreeSum {
 
 class SplayTree {
 
+    private String name;
+
     private Node root;
 
-    public SplayTree() {
+    public SplayTree(String name) {
+        this(null, name);
     }
 
-    public SplayTree(Node root) {
+    public SplayTree(Node root, String name) {
         this.root = root;
+        this.name = name;
     }
 
     private class Node {
@@ -211,9 +215,67 @@ class SplayTree {
         return node;
     }
 
-    public void sum(long from, long to) {
+    public long sum(long from, long to) {
+        if (from > to) {
+            throw new IllegalArgumentException("from > to, but has to be from <= to");
+        }
+        if (root == null) {
+            return 0;
+        }
+        //split into two parts
+        Node fromNode = searchForParentOrNode(from);
+        splay(fromNode);
+        if (fromNode.getValue() > to) {
+            return 0;
+        }
+        //we are interested in a right part
+        if (fromNode.getRightChild() == null) {
+            if (fromNode.getValue() >= from && fromNode.getValue() <= to) {
+                return fromNode.getValue();
+            } else {
+                return 0;
+            }
+        }
+        //split trees
+        Node leftChild = fromNode.getLeftChild();
+        fromNode.setLeftChild(null);
 
+        boolean fromRemoved = false;
+        if (fromNode.getValue() < from) {
+            remove(fromNode.getValue());
+            fromRemoved = true;
+        }
+
+        //find right border
+        Node toNode = searchForParentOrNode(to);
+        splay(toNode);
+        if (toNode.getValue() < from) {
+            return 0;
+        }
+        long result = 0;
+        if (toNode.getValue() <= to) {
+            result += toNode.getValue();
+        }
+        if (toNode.getLeftChild() != null) {
+            result += toNode.getLeftChild().getSum();
+        }
+
+        //reconnect trees
+        if (fromRemoved) {
+            fromNode.setLeftChild(leftChild);
+            fromNode.setRightChild(toNode);
+            fromNode.makeRoot();
+        } else {
+            Node minRight = min(toNode);
+            splay(minRight);
+            minRight.setLeftChild(leftChild);
+        }
+        return result;
     }
+
+//    private long sumLocal() {
+//
+//    }
 
     private void merge(Node leftTree, Node rightTree) {
 
@@ -225,6 +287,14 @@ class SplayTree {
             max = max.getRightChild();
         }
         return max;
+    }
+
+    private Node min(Node tree) {
+        Node min = tree;
+        while (min.getLeftChild() != null) {
+            min = min.getLeftChild();
+        }
+        return min;
     }
 
 //    private Node[] split(Node node) {
@@ -280,10 +350,10 @@ class SplayTree {
         Consumer<Node> childSetter = childSetter(b);
         Node treeB = u.getRightChild();
         Node treeC = a.getRightChild();
-        u.setRightChild(a);
+        b.setLeftChild(treeC);
         a.setLeftChild(treeB);
         a.setRightChild(b);
-        b.setLeftChild(treeC);
+        u.setRightChild(a);
         childSetter.accept(u);
     }
 
@@ -336,6 +406,11 @@ class SplayTree {
         } else {
             return parent::setRightChild;
         }
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
 
@@ -430,7 +505,8 @@ class Sum extends CommandBase {
 
     @Override
     protected void execute(long from, long to) {
-        splayTree.sum(from, to);
+        lastSumRequest = splayTree.sum(from, to);
+        System.out.println(lastSumRequest);
     }
 
 }
