@@ -61,12 +61,20 @@ class SplayTree {
             this.parent = parent;
         }
 
+        public void makeRoot() {
+            parent = null;
+            root = this;
+        }
+
         public Node getLeftChild() {
             return leftChild;
         }
 
         public void setLeftChild(Node leftChild) {
             this.leftChild = leftChild;
+            if (leftChild != null) {
+                leftChild.setParent(this);
+            }
         }
 
         public Node getRightChild() {
@@ -75,6 +83,9 @@ class SplayTree {
 
         public void setRightChild(Node rightChild) {
             this.rightChild = rightChild;
+            if (rightChild != null) {
+                rightChild.setParent(this);
+            }
         }
     }
 
@@ -166,48 +177,86 @@ class SplayTree {
     }
 
     private void splay(Node u) {
+        if (u == root) {
+            return;
+        }
         if (u.getParent() == root) {
             if (root.getLeftChild() == u) {
                 zig(u);
             } else {
                 zag(u);
             }
+        } else {
+            Node parent = u.getParent();
+            Node grandParent = parent.getParent();
+            if (parent.getLeftChild() == u && grandParent.getLeftChild() == parent) {
+                zigzig(u);
+            } else if (parent.getLeftChild() == u && grandParent.getRightChild() == parent) {
+                zigzag(u);
+            } else if (parent.getRightChild() == u && grandParent.getLeftChild() == parent) {
+                zagzig(u);
+            } else if (parent.getRightChild() == u && grandParent.getRightChild() == parent) {
+                zagzag(u);
+            }
         }
-
     }
 
     private void zig(Node u) {
         Node a = root;
         a.setLeftChild(u.getRightChild());
-        a.setParent(u);
         u.setRightChild(a);
-        u.setParent(null);
-        root = u;
+        u.makeRoot();
     }
 
     private void zag(Node u) {
         Node a = root;
         a.setRightChild(u.getLeftChild());
-        a.setParent(u);
         u.setLeftChild(a);
-        u.setParent(null);
-        root = u;
+        u.makeRoot();
     }
 
-    private void zigzig() {
-
+    private void zigzig(Node u) {
+        Node a = u.getParent();
+        Node b = a.getParent();
+        Node treeB = u.getRightChild();
+        Node treeC = a.getRightChild();
+        u.setRightChild(a);
+        a.setLeftChild(treeB);
+        a.setRightChild(b);
+        b.setLeftChild(treeC);
     }
 
-    private void zigzag() {
-
+    private void zigzag(Node u) {
+        Node b = u.getParent();
+        Node a = b.getParent();
+        Node treeB = u.getLeftChild();
+        Node treeC = u.getRightChild();
+        a.setRightChild(treeB);
+        b.setLeftChild(treeC);
+        u.setLeftChild(a);
+        u.setRightChild(b);
     }
 
-    private void zagzig() {
-
+    private void zagzig(Node u) {
+        Node b = u.getParent();
+        Node a = b.getParent();
+        Node treeB = u.getLeftChild();
+        Node treeC = u.getRightChild();
+        b.setRightChild(treeB);
+        a.setLeftChild(treeC);
+        u.setLeftChild(b);
+        u.setRightChild(a);
     }
 
-    private void zagzag() {
-
+    private void zagzag(Node u) {
+        Node b = u.getParent();
+        Node a = b.getParent();
+        Node treeB = b.getLeftChild();
+        Node treeC = u.getLeftChild();
+        a.setRightChild(treeB);
+        b.setRightChild(treeC);
+        b.setLeftChild(a);
+        u.setLeftChild(b);
     }
 }
 
