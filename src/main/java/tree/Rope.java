@@ -23,4 +23,23 @@ public class Rope {
         }
 
     }
+
+    private StringBuilder line;
+
+    public Rope(String line) {
+        this.line = new StringBuilder(line);
+    }
+
+    public String getLine() {
+        return line.toString();
+    }
+
+    public void cutAndInsert(int i, int j, int k) {
+        if (k == i) {
+            return;
+        }
+        String cut = line.substring(i, j+1);
+        line.delete(i, j+1);
+        line.insert(k, cut);
+    }
 }
