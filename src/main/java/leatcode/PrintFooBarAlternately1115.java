@@ -1,17 +1,13 @@
 package leatcode;
 
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 
 public class PrintFooBarAlternately1115 {
 
     public static class FooBar {
         private final int n;
-        private final Object lockFoo = new Object();
         private volatile boolean lockedFoo = true;
-        private final Object lockBar = new Object();
         private volatile boolean lockedBar = true;
-        private final CyclicBarrier barrier = new CyclicBarrier(2, this::resetFlags);
+        private final Object lock = new Object();
 
         public FooBar(int n) {
             this.n = n;
@@ -20,18 +16,18 @@ public class PrintFooBarAlternately1115 {
         public void foo(Runnable printFoo) throws InterruptedException {
 
             for (int i = 0; i < n; i++) {
-                barrierWait();
-                synchronized (lockFoo) {
+                synchronized (lock) {
                     while (lockedFoo) {
-                        lockFoo.wait();
+                        lock.wait();
                     }
+                    lockedFoo = true;
                 }
                 // printFoo.run() outputs "foo". Do not change or remove this line.
                 printFoo.run();
 
-                synchronized (lockBar) {
+                synchronized (lock) {
                     lockedBar = false;
-                    lockBar.notify();
+                    lock.notify();
                 }
             }
         }
@@ -39,34 +35,18 @@ public class PrintFooBarAlternately1115 {
         public void bar(Runnable printBar) throws InterruptedException {
 
             for (int i = 0; i < n; i++) {
-                barrierWait();
-                synchronized (lockFoo) {
+                synchronized (lock) {
                     lockedFoo = false;
-                    lockFoo.notify();
-                }
-
-                synchronized (lockBar) {
+                    lock.notify();
                     while (lockedBar) {
-                        lockBar.wait();
+                        lock.wait();
                     }
+                    lockedBar = true;
                 }
 
                 // printBar.run() outputs "bar". Do not change or remove this line.
                 printBar.run();
             }
-        }
-
-        private void barrierWait() throws InterruptedException {
-            try {
-                barrier.await();
-            } catch (BrokenBarrierException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        private void resetFlags() {
-            lockedFoo = true;
-            lockedBar = true;
         }
     }
 }

@@ -23,6 +23,8 @@ class PrintFooBarAlternately1115Test extends Specification {
         })
         first.start()
         second.start()
+        first.join()
+        second.join()
     }
 
     class PrintFoo implements Runnable {
