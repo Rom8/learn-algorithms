@@ -1,92 +1,50 @@
 package leatcode;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Sum15 {
     public List<List<Integer>> threeSum(int[] nums) {
-        int zeroCount = 0;
-        final TreeMap<Integer, Integer> negativeNumbers = new TreeMap<>();
-        final TreeMap<Integer, Integer> positiveNumbers = new TreeMap<>();
-        for (int number: nums) {
-            if (number > 0) {
-                positiveNumbers.merge(number, 1, Integer::sum);
-            } else if(number < 0) {
-                negativeNumbers.merge(number, 1, Integer::sum);
-            } else {
-                zeroCount++;
+        final Map<Integer, Integer> numbers = IntStream.of(nums)
+                .boxed()
+                .sorted(Comparator.comparing((Integer a) -> -Math.abs(a)).thenComparingInt(a -> a))
+                .collect(Collectors.toMap(a -> a, a -> 1, Integer::sum, LinkedHashMap::new));
+
+        TreeSet<List<Integer>> result = new TreeSet<>(new ListComparator());
+        final Set<Integer> keys = numbers.keySet();
+        final Iterator<Integer> iteratorOut = keys.iterator();
+        while (iteratorOut.hasNext()) {
+            Integer a = iteratorOut.next();
+            //check three zeroes case
+            if (a == 0) {
+                if (numbers.get(0) >= 3) {
+                    result.add(Arrays.asList(0,0,0));
+                }
+                break;
             }
-        }
-        Set<List<Integer>> result = new HashSet<>();
-        if (zeroCount >= 3) {
-            final List<Integer> threeZeroes = Arrays.asList(0, 0, 0);
-            result.add(threeZeroes);
-        }
-        if (negativeNumbers.size() == 0 || positiveNumbers.size() == 0) {
-            return new ArrayList<>(result);
-        }
-        calculateForOneSide(negativeNumbers, positiveNumbers, result);
-        calculateForOneSide(positiveNumbers, negativeNumbers, result);
-
-        for (Integer number: positiveNumbers.keySet()) {
-            if (zeroCount > 0 && negativeNumbers.containsKey(-number)) {
-                insertWithoutSorting(-number, 0, number, result);
+            if (a % 2 == 0 && numbers.getOrDefault(-a/2, 0) > 1) {
+                if (a < 0) {
+                    result.add(Arrays.asList(a, -a/2, -a/2));
+                } else {
+                    result.add(Arrays.asList(-a/2, -a/2, a));
+                }
             }
-        }
-
-        final ArrayList<List<Integer>> lists = new ArrayList<>(result);
-        lists.sort(new ListComparator());
-        return lists;
-    }
-
-    private void calculateForOneSide(TreeMap<Integer, Integer> leftNumbers, TreeMap<Integer, Integer> rightNumbers, Set<List<Integer>> result) {
-        for (Integer a: rightNumbers.keySet()) {
-            final int key = -a / 2;
-            if (a % 2 == 0) {
-                if (leftNumbers.getOrDefault(key, 0) > 1) {
-                    if (key < 0) {
-                        insertWithoutSorting(key, key, a, result);
+            final Iterator<Integer> iteratorInner = keys.iterator();
+            iteratorInner.next();
+            while (iteratorInner.hasNext()) {
+                int b = iteratorInner.next();
+                if (keys.contains(-a-b) && Math.abs(b) > Math.abs(-a-b)) {
+                    if (a < b) {
+                        result.add(Arrays.asList(a, -a-b, b));
                     } else {
-                        insertWithoutSorting(a, key, key, result);
+                        result.add(Arrays.asList(b, -a-b, a));
                     }
                 }
             }
-
-            final NavigableMap<Integer, Integer> subMap = getMap(leftNumbers, a);
-            final Iterator<Integer> iterator = subMap.navigableKeySet().iterator();
-            while (iterator.hasNext()) {
-                final Integer x = iterator.next();
-                if (x >key) {
-                    break;
-                }
-                if (subMap.containsKey(-a-x)) {
-                    int y = -a-x;
-                    if (x==y) {
-                        continue;
-                    }
-                    if (a < 0) {
-                        if (x < y) {
-                            insertWithoutSorting(a, x, y, result);
-                        } else {
-                            insertWithoutSorting(a, y, x, result);
-                        }
-                    } else {
-                        if (x < y) {
-                            insertWithoutSorting(x, y, a, result);
-                        } else {
-                            insertWithoutSorting(y, x, a, result);
-                        }
-                    }
-                }
-            }
+            iteratorOut.remove();
         }
-    }
-
-    private NavigableMap<Integer, Integer> getMap(TreeMap<Integer, Integer> leftNumbers, Integer number) {
-        if (number > 0) {
-            return leftNumbers.subMap(-number, false, 0, false);
-        } else {
-            return leftNumbers.subMap(0, false, -number, false);
-        }
+        return new ArrayList<>(result);
     }
 
     static class ListComparator implements Comparator<List<Integer>> {
@@ -99,10 +57,4 @@ public class Sum15 {
             return i1 != 0 ? i1 : (i2 != 0 ? i2 : i3);
         }
     }
-
-    private void insertWithoutSorting(int a, int b, int c, Set<List<Integer>> result) {
-        List<Integer> list = Arrays.asList(a, b, c);
-        result.add(list);
-    }
-
 }
